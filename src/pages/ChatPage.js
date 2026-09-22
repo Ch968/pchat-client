@@ -8,7 +8,7 @@ import UserProfilePage from './UserProfilePage';
 import io from 'socket.io-client';
 import './ChatPage.css';
 
-const socket = io('https://pchat-server-quyh.onrender.com');
+const socket = io('https://pchat-server-quyh.onrender.com/api');
 
 export default function ChatPage() {
     const { user, logout } = useContext(AuthContext);
