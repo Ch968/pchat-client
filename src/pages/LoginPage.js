@@ -3,6 +3,31 @@ import { authAPI } from '../services/api';
 import { AuthContext } from '../utils/AuthContext';
 import './AuthPage.css';
 
+import { useSearchParams } from 'react-router-dom';
+
+export default function LoginPage() {
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
+
+    if (token) {
+        return (
+            <div style={{ textAlign: 'center', padding: '50px' }}>
+                <h1>✅ Email Verified Successfully!</h1>
+                <p>Your email has been confirmed.</p>
+                <p>Please login with your credentials below.</p>
+                {/* Show normal login form here */}
+            </div>
+        );
+    }
+
+    // Normal login form
+    return (
+        <div>
+            {/* Your existing login form */}
+        </div>
+    );
+}
+
 export default function LoginPage() {
     const { login } = useContext(AuthContext);
     const [mode, setMode] = useState('register'); // 'register' or 'login'
