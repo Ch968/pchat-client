@@ -1,4 +1,5 @@
 import React from 'react';
+import VerifyPage from './pages/VerifyPage';
 import { AuthProvider, AuthContext } from './utils/AuthContext';
 import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
