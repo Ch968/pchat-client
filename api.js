@@ -17,7 +17,13 @@ API.interceptors.request.use((config) => {
 // ==========================================
 // AUTHENTICATION FUNCTIONS
 // ==========================================
+export const authAPI = {
+  sendVerification: (email) =>
+    API.post('/auth/send-verification', { email }),
 
+  verifyEmail: (token, username, password) =>
+    API.post('/auth/verify-email', { token, username, password }),
+};
 export const authAPI = {
     sendOTP: (phone_or_email) =>
         API.post('/auth/send-otp', { phone_or_email }),
