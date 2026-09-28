@@ -40,20 +40,19 @@ export default function LoginPage() {
     const [error, setError] = useState('');
 
     // ===== REGISTER FLOW =====
-    const handleSendOTP = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-
-        try {
-            await authAPI.sendOTP(phoneOrEmail);
-            setStep('otp');
-        } catch (err) {
-            setError(err.response?.data?.error || 'Failed to send OTP');
-        }
-
-        setLoading(false);
-    };
+// NEW:
+const handleSendVerification = async () => {
+  try {
+    const response = await authAPI.sendVerification(emailOrPhone);
+    alert('Verification link sent! Check your email!');
+    // In real version, show the link for testing
+    if (response.data.testLink) {
+      alert(`Test link: ${response.data.testLink}`);
+    }
+  } catch (error) {
+    alert('Error: ' + error.response.data.error);
+  }
+};
 
     const handleVerifyOTP = async (e) => {
         e.preventDefault();
