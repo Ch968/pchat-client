@@ -3,11 +3,10 @@ import { authAPI } from '../services/api';
 import { AuthContext } from '../utils/AuthContext';
 import './AuthPage.css';
 
-import { useSearchParams } from 'react-router-dom';
 
 export default function LoginPage() {
-    const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
 
     if (token) {
         return (
