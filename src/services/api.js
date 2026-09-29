@@ -19,32 +19,11 @@ API.interceptors.request.use((config) => {
 // ==========================================
 
 export const authAPI = {
-    sendOTP: (phone_or_email) =>
-        API.post('/auth/send-otp', { phone_or_email }),
-    
-    verifyOTP: (phone_or_email, otp_code, username, password) =>
-        API.post('/auth/verify-otp', { phone_or_email, otp_code, username, password }),
-    
-    login: (email_or_phone, password) =>
-        API.post('/auth/login', { email_or_phone, password }),
-    
-    getProfile: (userId) =>
-        API.get(`/auth/profile/${userId}`),
-    
-    updateProfile: (data) =>
-        API.put('/auth/profile', data),
+  register: (username, password, email) =>
+    API.post('/auth/register', { username, password, email }),
 
-    blockUser: (userId) =>
-        API.post(`/auth/block/${userId}`),
-    
-    unblockUser: (userId) =>
-        API.post(`/auth/unblock/${userId}`),
-    
-    getBlockedUsers: () =>
-        API.get('/auth/blocked-users'),
-
-    getUserProfile: (userId) =>
-        API.get(`/auth/profile/${userId}`)
+  login: (username, password) =>
+    API.post('/auth/login', { username, password }),
 };
 
 // ==========================================
