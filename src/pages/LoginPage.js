@@ -3,74 +3,80 @@ import { authAPI } from '../services/api';
 import { AuthContext } from '../utils/AuthContext';
 import './AuthPage.css';
 
-
 export default function LoginPage() {
+    const { login } = useContext(AuthContext);
+    
+    // Check if there's a verification token in URL
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
+    // If token exists, show verification success
     if (token) {
         return (
-            <div style={{ textAlign: 'center', padding: '50px' }}>
-                <h1>✅ Email Verified Successfully!</h1>
-                <p>Your email has been confirmed.</p>
-                <p>Please login with your credentials below.</p>
-                {/* Show normal login form here */}
+            <div className="auth-container">
+                <div className="auth-box">
+                    <h1>✅ Email Verified Successfully!</h1>
+                    <p>Your email has been confirmed.</p>
+                    <p>Please login with your credentials below.</p>
+                    <button onClick={() => window.location.href = '/login'} style={{ marginTop: '20px' }}>
+                        Continue to Login
+                    </button>
+                </div>
             </div>
         );
     }
 
     // Normal login form
-    return (
-        <div>
-            {/* Your existing login form */}
-        </div>
-    );
-}
-
-export default function LoginPage() {
-    const { login } = useContext(AuthContext);
     const [mode, setMode] = useState('register'); // 'register' or 'login'
-    const [step, setStep] = useState('phone'); // phone, otp, password
+    const [step, setStep] = useState('email'); // email, verification, password
     const [phoneOrEmail, setPhoneOrEmail] = useState('');
-    const [otp, setOtp] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // ===== REGISTER FLOW =====
-// NEW:
-const handleSendVerification = async () => {
-  try {
-    const response = await authAPI.sendVerification(emailOrPhone);
-    alert('Verification link sent! Check your email!');
-    // In real version, show the link for testing
-    if (response.data.testLink) {
-      alert(`Test link: ${response.data.testLink}`);
-    }
-  } catch (error) {
-    alert('Error: ' + error.response.data.error);
-  }
-};
-
-    const handleVerifyOTP = async (e) => {
+    // Send verification email
+    const handleSendVerification = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
         try {
-            const response = await authAPI.verifyOTP(phoneOrEmail, otp, username || 'User', password);
-            if (response.data.success) {
-                login(response.data.user, response.data.token);
+            const response = await authAPI.sendVerification(phoneOrEmail);
+            alert('✅ Verification link sent! Check your email!');
+            
+            // For testing: show the link
+            if (response.data.testLink) {
+                alert(`Test link: ${response.data.testLink}`);
             }
+            
+            setStep('verification');
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to verify OTP');
+            setError(err.response?.data?.error || 'Failed to send verification');
         }
 
         setLoading(false);
     };
 
-    // ===== LOGIN FLOW =====
+    // Verify email token
+    const handleVerifyEmail = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await authAPI.verifyEmail(token, username, password);
+            if (response.data.success) {
+                login(response.data.user, response.data.token);
+            }
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to verify email');
+        }
+
+        setLoading(false);
+    };
+
+    // Login with existing account
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -96,60 +102,35 @@ const handleSendVerification = async () => {
 
                 {error && <div className="error-message">{error}</div>}
 
-                {/* ===== REGISTER MODE ===== */}
+                {/* REGISTER MODE */}
                 {mode === 'register' ? (
                     <>
-                        {step === 'phone' && (
-                            <form onSubmit={handleSendOTP}>
+                        {step === 'email' && (
+                            <form onSubmit={handleSendVerification}>
                                 <h2>Create Account</h2>
                                 <input
-                                    type="text"
-                                    placeholder="Phone or Email"
+                                    type="email"
+                                    placeholder="Email Address"
                                     value={phoneOrEmail}
                                     onChange={(e) => setPhoneOrEmail(e.target.value)}
                                     required
                                     autoFocus
                                 />
                                 <button type="submit" disabled={loading}>
-                                    {loading ? 'Sending...' : 'Send OTP'}
+                                    {loading ? 'Sending...' : 'Send Verification Link'}
                                 </button>
                             </form>
                         )}
 
-                        {step === 'otp' && (
-                            <form onSubmit={handleVerifyOTP}>
-                                <h2>Verify OTP</h2>
-                                <p>Enter OTP sent to {phoneOrEmail}</p>
-                                <input
-                                    type="text"
-                                    placeholder="6-digit OTP"
-                                    value={otp}
-                                    onChange={(e) => setOtp(e.target.value.slice(0, 6))}
-                                    maxLength="6"
-                                    required
-                                    autoFocus
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Username"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    required
-                                />
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
-                                <button type="submit" disabled={loading}>
-                                    {loading ? 'Verifying...' : 'Verify & Create Account'}
-                                </button>
-                                <button type="button" onClick={() => setStep('phone')} className="back-btn">
+                        {step === 'verification' && (
+                            <div>
+                                <h2>Check Your Email</h2>
+                                <p>We sent a verification link to {phoneOrEmail}</p>
+                                <p>Click the link in your email to verify your account.</p>
+                                <button type="button" onClick={() => setStep('email')} className="back-btn">
                                     Back
                                 </button>
-                            </form>
+                            </div>
                         )}
 
                         <p className="switch-text">
@@ -157,7 +138,7 @@ const handleSendVerification = async () => {
                             <a href="#" onClick={(e) => {
                                 e.preventDefault();
                                 setMode('login');
-                                setStep('phone');
+                                setStep('email');
                                 setError('');
                             }}>
                                 Login
@@ -165,7 +146,7 @@ const handleSendVerification = async () => {
                         </p>
                     </>
                 ) : (
-                    // ===== LOGIN MODE =====
+                    // LOGIN MODE
                     <>
                         <form onSubmit={handleLogin}>
                             <h2>Login</h2>
@@ -194,11 +175,10 @@ const handleSendVerification = async () => {
                             <a href="#" onClick={(e) => {
                                 e.preventDefault();
                                 setMode('register');
-                                setStep('phone');
+                                setStep('email');
                                 setPhoneOrEmail('');
                                 setPassword('');
                                 setUsername('');
-                                setOtp('');
                                 setError('');
                             }}>
                                 Sign Up
