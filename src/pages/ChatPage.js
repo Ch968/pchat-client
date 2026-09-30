@@ -109,9 +109,8 @@ export default function ChatPage() {
 
     const startDirectMessage = async (userId) => {
         try {
-            const response = await messagesAPI.createDirectMessage(userId);
+            const response = await messagesAPI.createDirectMessage(foundUser.id, user.id);
             const newConversation = response.data.conversation;
-            
             setConversations(prev => {
                 const exists = prev.some(c => c.id === newConversation.id);
                 return exists ? prev : [newConversation, ...prev];
